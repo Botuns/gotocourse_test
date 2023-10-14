@@ -1,0 +1,15 @@
+/* display of the sidebar on mobiles */
+
+@media (max-width: 768px) {
+    .cta-cont {
+      display: none;
+    }
+    .containera{
+        width: 1.5cm;
+    }
+  }
+
+.ytest{
+    /* background-color: rgb(255 255 255 / 0.3); */
+  /* backdrop-filter: blur(50px); */
+}  
