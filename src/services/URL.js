@@ -1,0 +1,1 @@
+export const BASE_URL = 'htps://localhost:4000/exam';

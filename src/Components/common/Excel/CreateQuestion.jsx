@@ -16,6 +16,9 @@ const CreateQuestions = () => {
   const [newOption, setNewOption] = useState('');
   const [loader, setloader]= useState(false)
   const [questionnumber, setquestionnumber]= useState(0)
+  const [maxNumber, setMaxNumber] = useState(3);
+  const [maxNumberReached, setMaxNumberReached] = useState(false);
+
 
 
 
@@ -83,37 +86,56 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
    */
   const saveProgress = async (e) => {
     e.preventDefault();
+    // Check if the maximum number of questions is reached
+    if (questions.length + 1 >= maxNumber) {
+      // Disable the "Add New Question" button and show the "Submit Questions" button
+      toast('Max number of questions reached')
+      setMaxNumberReached(true);
+    }
     setloader(true);
     setquestionnumber(questions.length)
   
     try {
-      let newQuestion = {
-        question,
-        options,
-      };
-  
-      // Check if an image is provided
-      if (image) {
-        const img_url = await saveToCloudinary(image);
-        if (img_url) {
-          newQuestion = {
-            ...newQuestion,
-            img_url,
-          };
-          toast.success('stored')
-          
-        } else {
-          toast.error('Unable to save image');
-          setloader(false);
-          return;
+      if(question&&options){
+        let newQuestion = {
+          question,
+          options,
+        };
+    
+        // Check if an image is provided
+        if (image) {
+          const img_url = await saveToCloudinary(image);
+          if (img_url) {
+            newQuestion = {
+              ...newQuestion,
+              img_url,
+            };
+            toast.success('stored')
+            
+          } else {
+            toast.error('Unable to save image');
+            setloader(false);
+            return;
+          }
         }
-      }
-  
-      setQuestions([...questions, newQuestion]);
-      toast('saved')
-  
+    
+        setQuestions([...questions, newQuestion]);
+        toast('saved')
+    
+        
+        localStorage.setItem('questions', JSON.stringify([...questions, newQuestion]));
+        // Clear the form after saving
+      setQuestion('');
+      setImage(null);
+      setSelectedImage(null);
+      setOptions([]);
+      setNewOption('');
+
       
-      localStorage.setItem('questions', JSON.stringify([...questions, newQuestion]));
+      }
+      else{
+        toast.error('one or two fields are empty')
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -130,6 +152,9 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
     setNewOption('');
     
     // Implement logic to limit the number of questions to a maximum of 60.
+  };
+  const submitQuestions = () => {
+    console.log(questions)
   };
 
 
@@ -177,8 +202,15 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
     </div>
     <div className='flex flew-row justify-end mr-[5.4cm] mt-[1cm] gap-4'>
       <button onClick={saveProgress} className='py-2 px-10 border border-blue-800 text-blue-800'>Save</button>
-      <button onClick={addNewQuestion} className='py-2 px-10 border border-blue-800 bg-blue-800 text-white'>Add New Question</button>
-    </div>
+      {maxNumberReached ? (
+          <button onClick={submitQuestions} className="py-2 px-10 border border-blue-800 bg-blue-800 text-white">
+            Submit Questions
+          </button>
+        ) : (
+          <button onClick={addNewQuestion} className="py-2 px-10 border border-blue-800 bg-blue-800 text-white">
+            Add New Question
+          </button>
+        )}    </div>
     {/* loader */}
     {
         loader&&(

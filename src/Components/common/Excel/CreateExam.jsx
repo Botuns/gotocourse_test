@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Select from 'react-select';
 import ExcelNavBar from './ExcelNavBar';
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const options = [
   { value: 'session', label: 'Session' },
@@ -9,9 +11,10 @@ const options = [
 ];
 
 const durations = [1, 5, 10, 15, 20, 30];
-
 const CreateExam = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    title:'',
     maxQuestions: 1,
     duration: null,
     enrollment: null,
@@ -27,16 +30,52 @@ const CreateExam = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
-  };
+    try {
+      if(formData){
+        const examData={
+          title:formData.title,
+          maxQuestions: formData.maxQuestions,
+          duration: formData.duration.value,
+          enrollment: formData.enrollment.value,
+          allowMultipleAttempts: formData.allowMultipleAttempts.value,
+          showScore: formData.showScore.value,
+          gradeAllocation: formData.gradeAllocation.value,
+          instructions: formData.instructions,
+          }
+          localStorage.setItem('examData',JSON.stringify(examData))
+        toast.success('Exam info has been saved');
+        setTimeout(function() {
+          navigate('/add-questions')
+        }, 2000);
+      }
+      else{
+        toast.error('Something occured')
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+};
 
   return (
     <>
+    <Toaster/>
             <h1 className='p-4 bg-gray-200 font-bold mt-[1cm] w-[150vh] '>EXCEL BASICS #123</h1>
     <div className=" p-4 max-w-md mt-[.5cm] max-h-[100vh]">
+
         <ExcelNavBar/>
 
 <form onSubmit={handleSubmit} className='mt-[1cm]'>
+<div className="mb-6 flex gap-6 justify-between">
+          <label className="text-black" htmlFor="maxQuestions">Please enter an exam title <i className='text-red-500'>*</i></label>
+          <input
+            id="title"
+            type="text"
+            className="w-full border-2 border-blue-700 h-[1cm]"
+            value={formData.title}
+            onChange={(e) => handleInputChange('title', e.target.value)}
+            required
+          />
+        </div>
         <div className="mb-6 flex gap-6 justify-between">
           <label className="text-black" htmlFor="maxQuestions">Max number of questions (max60) <i className='text-red-500'>*</i></label>
           <input
