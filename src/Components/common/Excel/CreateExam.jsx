@@ -10,7 +10,7 @@ const options = [
   { value: 'program', label: 'Program' },
 ];
 
-const durations = [1, 5, 10, 15, 20, 30];
+const durations = [10, 20, 30, 45, 60, 90,120];
 const CreateExam = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({

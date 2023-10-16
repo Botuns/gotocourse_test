@@ -20,17 +20,20 @@ const storeExam = async (questionsData) => {
 
     // Perform the API request to create the exam
     const response = await axios.post(`${BASE_URL}/create`, { examData, questionsData });
+    console.log(examData,questionsData)
 
     // Check if the request was successful
     if (response.status === 201) {
       // Optionally, you can return or handle the response data here
       toast.success("Exam Create succesfully")
+      
       return response.data;
     } else {
       toast.error(`Failed to create the exam. Status code: ${response.status}`);
     }
   } catch (error) {
     // Handle any errors that may occur during the process
+    console.log(error)
     toast.error('Error while storing the exam:', error.message);
     // You can throw or handle the error as needed
     // throw error;

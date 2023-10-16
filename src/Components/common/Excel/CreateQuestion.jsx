@@ -4,20 +4,25 @@ import toast, {Toaster} from 'react-hot-toast'
 import {PlusSmallIcon} from '@heroicons/react/24/outline'
 import { saveToCloudinary } from '../../../services/teacher_services/cloudinaryUpload';
 import { ColorRing } from 'react-loader-spinner';
+import { storeExam } from '../../../services/teacher_services/storeExam';
 
 const CreateQuestions = () => {
+  const MaxNum = JSON.parse(localStorage.getItem('examData'))
+  const resMaxNum = MaxNum?.maxQuestions
   const [questions, setQuestions] = useState([]);
   const [question, setQuestion] = useState('');
   const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const[showoptiontext,setshoeoptiontext] = useState(false)
-  const [images, setImages] = useState([null]);
+  // const [images, setImages] = useState([null]);
   const [options, setOptions] = useState([]);
   const [newOption, setNewOption] = useState('');
   const [loader, setloader]= useState(false)
   const [questionnumber, setquestionnumber]= useState(0)
-  const [maxNumber, setMaxNumber] = useState(3);
-  const [maxNumberReached, setMaxNumberReached] = useState(false);
+  const [maxNumber, setMaxNumber] = useState(
+    Number.parseInt(resMaxNum, 10)); 
+     const [maxNumberReached, setMaxNumberReached] = useState(false);
 
 
 
@@ -63,20 +68,23 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
    *
    * @param {*} e
    */
-  const handleImageChange = (e) => {
+  // console.log(images)
+   const handleImageChange = (e) => {
     try {
-      setImage(e.target.files[0]);
       const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-    }
-    else{
-      toast.error('Upload was invalid, pls try again')
-    }
+      if (file) {
+        const newImageData = [...images];
+  newImageData[questionnumber] = { image: file };
+  setImages(newImageData);
+  setSelectedImage(URL.createObjectURL(file));
+      } else {
+        toast.error('Upload was invalid, please try again');
+      }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
   };
+  
 
 
   /**
@@ -89,52 +97,48 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
     // Check if the maximum number of questions is reached
     if (questions.length + 1 >= maxNumber) {
       // Disable the "Add New Question" button and show the "Submit Questions" button
-      toast('Max number of questions reached')
+      toast('Max number of questions reached');
       setMaxNumberReached(true);
     }
     setloader(true);
-    setquestionnumber(questions.length)
   
     try {
-      if(question&&options){
+      if (question && options) {
         let newQuestion = {
           question,
           options,
         };
-    
+        
         // Check if an image is provided
-        if (image) {
-          const img_url = await saveToCloudinary(image);
+        if (images.length > 0 && images[images.length - 1].image) {
+          const lastImage = images[images.length - 1].image;
+          const img_url = await saveToCloudinary(lastImage);
           if (img_url) {
             newQuestion = {
               ...newQuestion,
               img_url,
             };
-            toast.success('stored')
-            
+            toast.success('Image saved');
           } else {
             toast.error('Unable to save image');
             setloader(false);
             return;
           }
         }
-    
+  
         setQuestions([...questions, newQuestion]);
-        toast('saved')
-    
-        
+        toast('Question saved');
+  
         localStorage.setItem('questions', JSON.stringify([...questions, newQuestion]));
         // Clear the form after saving
-      setQuestion('');
-      setImage(null);
-      setSelectedImage(null);
-      setOptions([]);
-      setNewOption('');
-
-      
-      }
-      else{
-        toast.error('one or two fields are empty')
+        setQuestion('');
+        setImage(null);
+        setSelectedImage(null);
+        setOptions([]);
+        setNewOption('');
+        setquestionnumber(questionnumber + 1); // Move to the next question
+      } else {
+        toast.error('One or two fields are empty');
       }
     } catch (error) {
       toast.error(error.message);
@@ -142,6 +146,7 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
       setloader(false);
     }
   };
+  
   
   const addNewQuestion =async (e) => {
     await saveProgress(e)
@@ -153,8 +158,11 @@ const accessFile = (e) => { //when the button is clicked, it accesses the file o
     
     // Implement logic to limit the number of questions to a maximum of 60.
   };
-  const submitQuestions = () => {
-    console.log(questions)
+  const submitQuestions = async() => {
+    const questionData=questions
+
+  await storeExam(questionData)
+    
   };
 
 

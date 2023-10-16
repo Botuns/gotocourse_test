@@ -1,1 +1,1 @@
-export const BASE_URL = 'htps://localhost:4000/exam';
+export const BASE_URL = 'https://gotocoursebe.onrender.com/exam';

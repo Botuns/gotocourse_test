@@ -18,7 +18,7 @@ const AuthPage = () => {
       if (userInput === 'teacher123') {
           navigate('/teacher-home');
         } else if (userInput === 'student123') {
-          navigate('/student-dashboard');
+          navigate('/start-exam');
         } else {
           toast.error('Invalid login. Please enter a valid username.');
         }
